@@ -1,0 +1,21 @@
+.TagPage {
+	height: "100%";
+	text-align: center;
+	padding-top: 20px;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.ButtonContainer {
+	width: "100%";
+	display: "flex";
+	justify-content: "flex-end";
+}
+
+.Button {
+	margin-bottom: 15px;
+}
+
+.Title {
+	text-align: center;
+}

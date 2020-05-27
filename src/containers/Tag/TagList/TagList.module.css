@@ -1,0 +1,9 @@
+.Paper {
+	width: "100%";
+	min-width: 260px;
+	display: "inline-block";
+}
+
+.Table {
+	width: "60%";
+}
