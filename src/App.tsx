@@ -14,11 +14,15 @@ import {
 	Typography,
 	//useMediaQuery,
 } from "@material-ui/core";
-import { Theme } from "@material-ui/core/styles";
 import HomeIcon from "@material-ui/icons/Home";
 import LabelIcon from "@material-ui/icons/Label";
 import MenuIcon from "@material-ui/icons/Menu";
-import { makeStyles } from "@material-ui/styles";
+import {
+	makeStyles,
+	useTheme,
+	Theme,
+	createStyles,
+} from "@material-ui/core/styles";
 
 import { Route, Router } from "react-router-dom";
 import { history } from "./configureStore";
@@ -32,7 +36,7 @@ const Routes = () => {
 	const classes = useStyles();
 
 	return (
-		<div className={classes.content}>
+		<div className={classes.root}>
 			<Route exact={true} path="/" component={Dashboard} />
 			<Route exact={true} path="/dashboard" component={Dashboard} />
 			<Route exact={true} path="/tag" component={TagPage} />
@@ -74,6 +78,8 @@ const Drawer = () => {
 const App = () => {
 	const classes = useStyles();
 	const [mobileOpen, setMobileOpen] = React.useState(true);
+	const theme = useTheme();
+
 	// const isMobile = useMediaQuery((theme: Theme) =>
 	// 	theme.breakpoints.down("sm")
 	// );
@@ -137,36 +143,54 @@ const App = () => {
 };
 
 const drawerWidth = 200;
-const useStyles = makeStyles((theme: Theme) => ({
-	appBar: {
-		zIndex: theme.zIndex.drawer + 1,
-		position: "absolute",
-	},
-	navIconHide: {
-		[theme.breakpoints.up("md")]: {
-			display: "none",
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		root: {
+			display: "flex",
 		},
-	},
-	drawerHeader: { ...theme.mixins.toolbar },
-	drawerPaper: {
-		width: 200,
-		backgroundColor: theme.palette.background.default,
-		[theme.breakpoints.up("md")]: {
-			width: drawerWidth,
-			position: "relative",
-			height: "100%",
+
+		Drawer: {
+			[theme.breakpoints.up("sm")]: {
+				width: drawerWidth,
+				flexShrink: 0,
+			},
 		},
-	},
-	content: {
-		backgroundColor: theme.palette.background.default,
-		width: "100%",
-		height: "calc(100% - 56px)",
-		marginTop: 56,
-		[theme.breakpoints.up("sm")]: {
-			height: "calc(100% - 64px)",
-			marginTop: 64,
+
+		appBar: {
+			[theme.breakpoints.up("sm")]: {
+				width: `calc(100% - ${drawerWidth}px)`,
+				marginLeft: drawerWidth,
+			},
 		},
-	},
-}));
+		navIconHide: {
+			[theme.breakpoints.up("sm")]: {
+				width: `calc(100% - ${drawerWidth}px)`,
+				display: "none",
+			},
+		},
+		drawerHeader: { ...theme.mixins.toolbar },
+
+		drawerPaper: {
+			width: 200,
+			// backgroundColor: theme.palette.background.default,
+			// [theme.breakpoints.up("md")]: {
+			// 	width: drawerWidth,
+			// 	position: "relative",
+			// 	height: "100%",
+		},
+		content: {
+			// backgroundColor: theme.palette.background.default,
+			// width: "100%",
+			// height: "calc(100% - 56px)",
+			flexGrow: 1,
+			padding: theme.spacing(3),
+			// marginTop: 56,
+			// [theme.breakpoints.up("sm")]: {
+			// 	height: "calc(100% - 64px)",
+			// 	marginTop: 64,
+			// },
+		},
+	})
+);
 
 export default withRoot(App);
