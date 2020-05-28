@@ -94,7 +94,7 @@ const App = () => {
 	return (
 		<Router history={history}>
 			<div className={styles.App}>
-				<div className={styles.AppFrame}>
+				<div className={classes.AppFrame}>
 					<AppBar className={classes.appBar}>
 						<Toolbar>
 							<IconButton
@@ -151,21 +151,28 @@ const useStyles = makeStyles((theme: Theme) =>
 			display: "flex",
 		},
 
+		AppFrame: {
+			marginTop: "55px",
+			[theme.breakpoints.up("md")]: {
+				marginLeft: drawerWidth,
+			},
+		},
+
 		Drawer: {
-			[theme.breakpoints.up("sm")]: {
+			[theme.breakpoints.up("md")]: {
 				width: drawerWidth,
 				flexShrink: 0,
 			},
 		},
 
 		appBar: {
-			[theme.breakpoints.up("sm")]: {
+			[theme.breakpoints.up("md")]: {
 				width: `calc(100% - ${drawerWidth}px)`,
 				marginLeft: drawerWidth,
 			},
 		},
 		navIconHide: {
-			[theme.breakpoints.up("sm")]: {
+			[theme.breakpoints.up("md")]: {
 				width: `calc(100% - ${drawerWidth}px)`,
 				display: "none",
 			},
