@@ -18,7 +18,7 @@ import { RootState } from "../../../store/reducers";
 import styles from "./TagList.module.css";
 import { history } from "../../../configureStore";
 
-export interface TagListProps {}
+export interface TagListProps { }
 
 export const TagList: React.SFC<TagListProps> = () => {
 	const tagList = useSelector((state: RootState) => state.tagList);
@@ -44,7 +44,7 @@ export const TagList: React.SFC<TagListProps> = () => {
 									<IconButton
 										aria-label="Edit"
 										color="default"
-										onClick={() => history.push("/tag/" + n.id + "/edit")}
+										onClick={() => history.push(`/tag/${n.id}/edit`)}
 									>
 										<EditIcon />
 									</IconButton>
