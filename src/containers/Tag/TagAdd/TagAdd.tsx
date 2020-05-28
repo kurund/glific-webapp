@@ -1,34 +1,47 @@
 import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
 import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
+import { RootState } from "../../../store/reducers";
 
-export interface TagAddProps {}
+interface TagAddProps {
+	match: any;
+}
 
-export const TagAdd: React.SFC<TagAddProps> = () => {
-	const [name, setName] = useState("");
-	const [description, setDescription] = useState("");
-	const [isActive, setIsActive] = useState(false);
-	const [isReserved, setIsReserved] = useState(false);
-	const [languageId, setLanguageId] = useState("");
-	const [parentId, setParentId] = useState("");
+export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
+	const tagList = useSelector((state: RootState) => state.tagList);
+	const tagId = props.match ? props.match.params.id : null;
+	const tag = tagId ? tagList.find((tag) => tag.id == tagId) : null;
+
+	const [name, setName] = useState(tag ? tag.name : "");
+	const [description, setDescription] = useState(tag ? tag.description : "");
+	const [isActive, setIsActive] = useState(tag ? tag.is_active : false);
+	const [isReserved, setIsReserved] = useState(tag ? tag.is_reserved : false);
+	const [languageId, setLanguageId] = useState(tag ? tag.language_id : "");
+	const [parentId, setParentId] = useState(tag ? tag.parent_id : "");
 	const [formSubmitted, setFormSubmitted] = useState(false);
 
 	const tagActions = useActions(TagActions);
 
 	const saveHandler = () => {
-		tagActions.addTag({
-			id: Math.random(),
+		let payload = {
+			id: tag ? tagId : Math.random(),
 			name: name,
 			description: description,
 			is_active: isActive,
 			is_reserved: isReserved,
 			language_id: languageId,
 			parent_id: parentId,
-		});
+		}
+		if (tag) {
+			tagActions.editTag(payload);
+		} else {
+			tagActions.addTag(payload);
+		}
 
 		setFormSubmitted(true);
 	};
@@ -109,7 +122,7 @@ export const TagAdd: React.SFC<TagAddProps> = () => {
 
 	return (
 		<div className={styles.TagAdd}>
-			<h4>Enter the tag information</h4>
+			<h4>{tag ? 'Edit tag information' : 'Enter tag information'}</h4>
 			{form}
 		</div>
 	);
