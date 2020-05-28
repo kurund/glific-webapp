@@ -27,7 +27,6 @@ import {
 import { Route, Router } from "react-router-dom";
 import { history } from "./configureStore";
 import { TagAdd } from "./containers/Tag/TagAdd/TagAdd";
-import { TagEdit } from "./containers/Tag/TagEdit/TagEdit";
 import { Dashboard } from "./components/Dashboard/Dashboard";
 import { TagPage } from "./components/TagPage/TagPage";
 import { withRoot } from "./withRoot";
@@ -42,7 +41,7 @@ const Routes = () => {
 			<Route exact={true} path="/dashboard" component={Dashboard} />
 			<Route exact={true} path="/tag" component={TagPage} />
 			<Route exact={true} path="/tag/add" component={TagAdd} />
-			<Route exact={true} path="/tag/:id/edit" component={TagEdit} />
+			<Route exact={true} path="/tag/:id/edit" component={TagAdd} />
 		</div>
 	);
 };
