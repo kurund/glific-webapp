@@ -17,12 +17,14 @@ import { Tag } from "../../../model/";
 import { RootState } from "../../../store/reducers";
 import styles from "./TagList.module.css";
 import { history } from "../../../configureStore";
+import { makeStyles } from "@material-ui/styles";
 
-export interface TagListProps { }
+export interface TagListProps {}
 
 export const TagList: React.SFC<TagListProps> = () => {
 	const tagList = useSelector((state: RootState) => state.tagList);
 	const tagActions = useActions(TagActions);
+	const classes = useStyles();
 
 	return (
 		<Paper className={styles.Paper}>
@@ -38,13 +40,14 @@ export const TagList: React.SFC<TagListProps> = () => {
 					{tagList.map((n: Tag) => {
 						return (
 							<TableRow key={n.id} hover>
-								<TableCell padding="none">{n.name}</TableCell>
-								<TableCell padding="none">{n.description}</TableCell>
-								<TableCell padding="none">
+								<TableCell padding="default">{n.name}</TableCell>
+								<TableCell padding="default">{n.description}</TableCell>
+								<TableCell padding="default">
 									<IconButton
 										aria-label="Edit"
 										color="default"
 										onClick={() => history.push(`/tag/${n.id}/edit`)}
+										className={classes.noVerticalPadding}
 									>
 										<EditIcon />
 									</IconButton>
@@ -52,6 +55,7 @@ export const TagList: React.SFC<TagListProps> = () => {
 										aria-label="Delete"
 										color="default"
 										onClick={() => tagActions.deleteTag(n.id)}
+										className={classes.noVerticalPadding}
 									>
 										<DeleteIcon />
 									</IconButton>
@@ -64,3 +68,9 @@ export const TagList: React.SFC<TagListProps> = () => {
 		</Paper>
 	);
 };
+
+const useStyles = makeStyles(() => ({
+	noVerticalPadding: {
+		padding: "0px 12px",
+	},
+}));
