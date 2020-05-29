@@ -11,6 +11,8 @@ import ButtonElement from "../../../components/UI/Button/ButtonElement";
 import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
 import { RootState } from "../../../store/reducers";
+import { TagEntry } from "./TagEntry";
+import { TagCheckbox } from "./TagCheckbox";
 
 interface TagAddProps {
 	match: any;
@@ -31,20 +33,17 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 
 	const [nameError, setNameError] = useState(false);
 	const [descriptionError, setDescriptionError] = useState(false);
-	// const [isActiveError, setIsActiveError] = useState(false);
-	// const [isReservedError, setIsReservedError] = useState(false);
 	const [languageIdError, setLanguageIdError] = useState(false);
 	const [parentIdError, setParentIdError] = useState(false);
 
 	const tagActions = useActions(TagActions);
 
-	const errorMessage = "Empty entry."
+	const emptyMessage = "Empty entry."
+	const negativeMessage = "Cannot have negative entries."
 
 	const validateEntries = () => {
 		let noError = true;
-		console.log("validating")
 		if (name === "") {
-			console.log("hi there");
 			noError = false;
 			setNameError(true);
 		}
@@ -52,11 +51,14 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 			noError = false;
 			setDescriptionError(true);
 		}
-		if (languageId === "") {
+		console.log("LanguageID:" + +languageId);
+		if (languageId === "" || +languageId < 0) {
+			console.log("error here");
+			console.log(+languageId < 0);
 			noError = false;
 			setLanguageIdError(true);
 		}
-		if (parentId === "") {
+		if (parentId === "" || +parentId < 0) {
 			noError = false;
 			setParentIdError(true);
 		}
@@ -95,70 +97,49 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 
 	let form = (
 		<>
-			<div style={{ height: '80px' }} className={styles.Input}>
-				<label className={styles.Label}>Name</label>
-				<TextField
-					required
-					error={nameError && name == ""}
-					defaultValue={name}
-					InputLabelProps={{ shrink: true, }}
-					label="Name"
-					helperText={nameError && name == "" ? errorMessage : ""}
-					onChange={(event) => setName(event?.target.value)}
-				/>
-			</div>
-			<div style={{ height: '80px' }} className={styles.Input}>
-				<label className={styles.Label}>Description</label>
-				<TextField
-					required
-					error={descriptionError && description == ""}
-					defaultValue={description}
-					InputLabelProps={{ shrink: true, }}
-					label="Description"
-					helperText={descriptionError && description == "" ? errorMessage : ""}
-					onChange={(event) => setDescription(event?.target.value)}
-				/>
-			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Is Active?</label>
-				<Checkbox
-					name="is_active"
-					checked={isActive}
-					onChange={(event) => setIsActive(event?.target.checked)}
-				/>
-			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Is Reserved?</label>
-				<Checkbox
-					name="is_reserved"
-					checked={isReserved}
-					onChange={(event) => setIsReserved(event?.target.checked)}
-				/>
-			</div>
-			<div style={{ height: '80px' }} className={styles.Input}>
-				<label className={styles.Label}>Language</label>
-				<TextField
-					required
-					error={languageIdError && languageId == ""}
-					defaultValue={languageId}
-					InputLabelProps={{ shrink: true, }}
-					label="Language"
-					helperText={languageIdError && languageId == "" ? errorMessage : ""}
-					onChange={(event) => setLanguageId(event?.target.value)}
-				/>
-			</div>
-			<div style={{ height: '80px' }} className={styles.Input}>
-				<label className={styles.Label}>Parent</label>
-				<TextField
-					required
-					error={parentIdError && parentId == ""}
-					defaultValue={parentId}
-					InputLabelProps={{ shrink: true, }}
-					label="Parent"
-					helperText={parentIdError && parentId == "" ? errorMessage : ""}
-					onChange={(event) => setParentId(event?.target.value)}
-				/>
-			</div>
+			<TagEntry
+				name="Name" 
+				error={nameError} 
+				value={name}
+				type="text"
+				errorMsg={emptyMessage} 
+				callBack={setName} 
+			/>
+			<TagEntry
+				name="Description" 
+				error={descriptionError} 
+				value={description} 
+				type="text"
+				errorMsg={emptyMessage} 
+				callBack={setDescription} 
+			/>
+			<TagCheckbox
+				name="Is Active?"
+				value={isActive}
+				callBack={setIsActive}
+			/>
+			<TagCheckbox
+				name="Is Reserved?"
+				value={isReserved}
+				callBack={setIsReserved}
+			/>
+			<TagEntry
+				name="Language" 
+				error={languageIdError} 
+				value={languageId}
+				type="number"
+				errorMsg={languageIdError && +languageId >= 0 ? emptyMessage : negativeMessage} 
+				callBack={setLanguageId} 
+			/>
+			<TagEntry
+				name="Parent" 
+				error={parentIdError} 
+				value={parentId}
+				type="number"
+				errorMsg={parentIdError && +parentId >= 0 ? emptyMessage : negativeMessage}
+				callBack={setParentId} 
+			/>
+
 			<div className="buttons" style={{ marginTop: '10px' }}>
 				<ButtonElement color="primary" onClick={saveHandler}>
 					Save
