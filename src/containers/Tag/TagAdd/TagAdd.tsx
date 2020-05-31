@@ -7,6 +7,7 @@ import ButtonElement from "../../../components/UI/Button/ButtonElement";
 import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
 import { RootState } from "../../../store/reducers";
+import { Tag } from "../../../model";
 
 interface TagAddProps {
 	match: any;
@@ -28,15 +29,16 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const tagActions = useActions(TagActions);
 
 	const saveHandler = () => {
-		let payload = {
-			id: tag ? tagId : Math.random(),
+		const payload: Tag = {
+			id: Number(tag ? tagId : Math.floor(Math.random() * Math.floor(100))),
 			name: name,
 			description: description,
 			is_active: isActive,
 			is_reserved: isReserved,
-			language_id: languageId,
-			parent_id: parentId,
-		}
+			language_id: Number(languageId),
+			parent_id: Number(parentId),
+		};
+
 		if (tag) {
 			tagActions.editTag(payload);
 		} else {
@@ -122,7 +124,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 
 	return (
 		<div className={styles.TagAdd}>
-			<h4>{tag ? 'Edit tag information' : 'Enter tag information'}</h4>
+			<h4>{tag ? "Edit tag information" : "Enter tag information"}</h4>
 			{form}
 		</div>
 	);
