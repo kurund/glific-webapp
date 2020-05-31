@@ -16,7 +16,7 @@ interface TagAddProps {
 export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const tagList = useSelector((state: RootState) => state.tagList);
 	const tagId = props.match ? props.match.params.id : null;
-	const tag = tagId ? tagList.find((tag) => tag.id === tagId) : null;
+	const tag = tagId ? tagList.find((tag) => tag.id === Number(tagId)) : null;
 
 	const [name, setName] = useState(tag ? tag.name : "");
 	const [description, setDescription] = useState(tag ? tag.description : "");
@@ -30,7 +30,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 
 	const saveHandler = () => {
 		const payload: Tag = {
-			id: Number(tag ? tagId : Math.floor(Math.random() * Math.floor(100))),
+			id: tag ? tagId : Math.floor(Math.random() * Math.floor(100)),
 			name: name,
 			description: description,
 			is_active: isActive,
