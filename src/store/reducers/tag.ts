@@ -8,7 +8,7 @@ export const tagList = createReducer<Tag[]>([], {
   [TagActions.EDIT_TAG](state: Tag[], action: TagAction) {
     return state.map((tag) => {
       if (tag.id == action.payload.id) {
-        return action.payload;
+        return { ...tag, ...action.payload };
       }
       return tag;
     });
