@@ -54,7 +54,7 @@ export const TagList: React.SFC<TagListProps> = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {tagList.map((n: Tag) => {
+          {tagList.map((n: any) => {
             return (
               <TableRow key={n.id} hover>
                 <TableCell padding="default">{n.label}</TableCell>

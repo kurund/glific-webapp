@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
-import { useSelector } from "react-redux";
-
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
 import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
-import { RootState } from "../../../store/reducers";
 import { Tag } from "../../../model";
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
 
 interface TagAddProps {
   match: any;
 }
 
-const TAG_QUERY = gql`
+const GET_TAG = gql`
   query getTag($id: ID!) {
     tag(id: $id) {
       tag {
@@ -32,11 +29,32 @@ const TAG_QUERY = gql`
   }
 `;
 
+const UPDATE_TAG = gql`
+  mutation updateTag($id:ID!, $input:TagInput!) {
+    updateTag(id: $id, input: $input) {
+      tag {
+        id
+        label
+        language {
+          id
+          label
+        }
+        description
+      }
+      errors {
+        key
+        message
+      }
+    }
+  }
+`;
+
 export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
   const tagId = props.match ? props.match.params.id : null;
-  const { loading, error, data } = useQuery(TAG_QUERY, {
+  const { loading, error, data } = useQuery(GET_TAG, {
     variables: { id: tagId },
   });
+  const [updateTag] = useMutation(UPDATE_TAG);
 
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
@@ -46,7 +64,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
   const [parentId, setParentId] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  const tagActions = useActions(TagActions);
+  // const tagActions = useActions(TagActions);
 
   useEffect(() => {
     if (tag) {
@@ -65,20 +83,25 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
   const tag = data.tag.tag;
 
   const saveHandler = () => {
-    const payload: Tag = {
-      id: tag ? tagId : Math.floor(Math.random() * Math.floor(100)),
+    const payload = {
       label: label,
       description: description,
       is_active: isActive,
       is_reserved: isReserved,
       language_id: Number(languageId),
-      parent_id: Number(parentId),
+      // parent_id: Number(parentId),
     };
 
     if (tag) {
-      tagActions.editTag(payload);
+      // tagActions.editTag(payload);
+      updateTag({
+        variables: {
+          id: tagId,
+          input: payload,
+        }
+      });
     } else {
-      tagActions.addTag(payload);
+      // tagActions.addTag(payload);
     }
 
     setFormSubmitted(true);
