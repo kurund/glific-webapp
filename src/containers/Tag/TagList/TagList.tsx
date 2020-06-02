@@ -24,23 +24,24 @@ import { gql } from 'apollo-boost';
 
 export interface TagListProps { }
 
+const TAG_LIST = gql`
+  {
+    tags {
+      id
+      label
+      description
+    }
+  }
+`;
+
 export const TagList: React.SFC<TagListProps> = () => {
   const tagActions = useActions(TagActions);
   const classes = useStyles();
-  const TAG_QUERY = gql`
-    {
-      tags {
-        id
-        label
-        description
-      }
-    }
-  `;
-  const { loading, error, data } = useQuery(TAG_QUERY);
+
+  const { loading, error, data } = useQuery(TAG_LIST);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
   const tagList = data.tags;
-  console.log(tagList);
 
   return (
     <Paper className={styles.Paper}>
@@ -57,7 +58,7 @@ export const TagList: React.SFC<TagListProps> = () => {
             return (
               <TableRow key={n.id} hover>
                 <TableCell padding="default">{n.label}</TableCell>
-                <TableCell padding="default">{n.description}</TableCell>
+                <TableCell padding="default">{n.description || '-'}</TableCell>
                 <TableCell padding="default">
                   <IconButton
                     aria-label="Edit"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -8,25 +8,61 @@ import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
 import { RootState } from "../../../store/reducers";
 import { Tag } from "../../../model";
+import { useQuery } from '@apollo/react-hooks';
+import { gql } from 'apollo-boost';
 
 interface TagAddProps {
   match: any;
 }
 
-export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
-  const tagList = useSelector((state: RootState) => state.tagList);
-  const tagId = props.match ? props.match.params.id : null;
-  const tag = tagId ? tagList.find((tag) => tag.id === Number(tagId)) : null;
+const TAG_QUERY = gql`
+  query getTag($id: ID!) {
+    tag(id: $id) {
+      tag {
+        id
+        label
+        description
+        isActive
+        isReserved
+        language {
+          id
+        }
+      }
+    }
+  }
+`;
 
-  const [label, setLabel] = useState(tag ? tag.label : "");
-  const [description, setDescription] = useState(tag ? tag.description : "");
-  const [isActive, setIsActive] = useState(tag ? tag.is_active : false);
-  const [isReserved, setIsReserved] = useState(tag ? tag.is_reserved : false);
-  const [languageId, setLanguageId] = useState(tag ? tag.language_id : "");
-  const [parentId, setParentId] = useState(tag ? tag.parent_id : "");
+export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
+  const tagId = props.match ? props.match.params.id : null;
+  const { loading, error, data } = useQuery(TAG_QUERY, {
+    variables: { id: tagId },
+  });
+
+  const [label, setLabel] = useState("");
+  const [description, setDescription] = useState("");
+  const [isActive, setIsActive] = useState(false);
+  const [isReserved, setIsReserved] = useState(false);
+  const [languageId, setLanguageId] = useState("");
+  const [parentId, setParentId] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const tagActions = useActions(TagActions);
+
+  useEffect(() => {
+    if (tag) {
+      setLabel(tag.label);
+      setDescription(tag.description);
+      setIsActive(tag.isActive);
+      setIsReserved(tag.isReserved);
+      setLanguageId(tag.language.id);
+      setParentId(tag.parent_id);
+    }
+  }, [data]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
+
+  const tag = data.tag.tag;
 
   const saveHandler = () => {
     const payload: Tag = {
