@@ -24,7 +24,7 @@ import { gql } from 'apollo-boost';
 
 export interface TagListProps { }
 
-const TAG_LIST = gql`
+const GET_TAGS = gql`
   {
     tags {
       id
@@ -38,7 +38,7 @@ export const TagList: React.SFC<TagListProps> = () => {
   const tagActions = useActions(TagActions);
   const classes = useStyles();
 
-  const { loading, error, data } = useQuery(TAG_LIST);
+  const { loading, error, data } = useQuery(GET_TAGS);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
   const tagList = data.tags;
