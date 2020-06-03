@@ -97,7 +97,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const [description, setDescription] = useState("");
 	const [isActive, setIsActive] = useState(false);
 	const [isReserved, setIsReserved] = useState(false);
-	const [languageId, setLanguageId] = useState("");
+	const [languageId, setLanguageId] = useState("1");
 	const [parentId, setParentId] = useState("");
 	const [formSubmitted, setFormSubmitted] = useState(false);
 	const languages = useQuery(GET_LANGUAGES);
