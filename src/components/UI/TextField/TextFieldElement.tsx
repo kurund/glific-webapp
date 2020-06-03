@@ -8,9 +8,9 @@ import {
 // PassDownProps may be better used as FormsyInjectedProps, but FormsyInjectedProps doesn't work here for some reason.
 
 // export interface FormsyInjectedProps<T> {
-//     // getValue: () => T;
+//     getValue: () => T;
 //     setValue: (value: T | undefined) => void;
-//     // getErrorMessage: () => string;
+//     getErrorMessage: () => string;
 //     showRequired: () => boolean;
 //     showError: () => boolean;
 // }
@@ -32,7 +32,6 @@ class TextFieldElement extends React.Component<TextFieldElementProps> {
     }
 
     render() {
-        console.log("error for ", this.props.type, this.props.name, this.props.showError);
         return (
             <TextField
                 onChange={this.changeValue}

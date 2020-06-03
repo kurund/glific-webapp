@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 import styles from "./TagAdd.module.css";
@@ -18,7 +18,7 @@ interface TagAddProps {
 export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const tagList = useSelector((state: RootState) => state.tagList);
 	const tagId = props.match ? props.match.params.id : null;
-	const tag = tagId ? tagList.find((tag) => tag.id == tagId) : null;
+	const tag = tagId ? tagList.find((tag) => tag.id === tagId) : null;
 
 	// None of these set methods are needed (for now).
 	const [name, setName] = useState(tag ? tag.name : "");
@@ -28,8 +28,6 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const [languageId, setLanguageId] = useState(tag ? tag.language_id : "");
 	const [parentId, setParentId] = useState(tag ? tag.parent_id : "");
 	const [formSubmitted, setFormSubmitted] = useState(false);
-
-	const [canSubmit, setCanSubmit] = useState(false);
 	const tagActions = useActions(TagActions);
 
 	const saveHandler = (data: any, resetFunc: Function, invalidateForm: Function) => {
@@ -106,7 +104,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 						Submit
 					</ButtonElement>
 					&nbsp;
-					<ButtonElement type="cancel" color="default" onClick={cancelHandler}>
+					<ButtonElement color="default" onClick={cancelHandler}>
 						Cancel
 					</ButtonElement>
 				</div>
