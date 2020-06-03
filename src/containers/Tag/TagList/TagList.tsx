@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
@@ -18,9 +18,8 @@ import { RootState } from "../../../store/reducers";
 import styles from "./TagList.module.css";
 import { history } from "../../../configureStore";
 import { makeStyles } from "@material-ui/styles";
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
-
 
 export interface TagListProps { }
 
@@ -34,14 +33,35 @@ const GET_TAGS = gql`
   }
 `;
 
+const DELETE_TAG = gql`
+  mutation deleteTag($id:ID!) {
+    deleteTag(id: $id) {
+      errors {
+        key
+        message
+      }
+    }
+  }
+`;
+
 export const TagList: React.SFC<TagListProps> = () => {
   const tagActions = useActions(TagActions);
   const classes = useStyles();
 
   const { loading, error, data } = useQuery(GET_TAGS);
+  const [deleteTag] = useMutation(DELETE_TAG, {
+    onCompleted(deleteTag) {
+      window.location.reload(false);
+    }
+  });
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
   const tagList = data.tags;
+
+  const deleteHandler = (id: number) => {
+    deleteTag({ variables: { id } });
+  }
 
   return (
     <Paper className={styles.Paper}>
@@ -71,7 +91,7 @@ export const TagList: React.SFC<TagListProps> = () => {
                   <IconButton
                     aria-label="Delete"
                     color="default"
-                    onClick={() => tagActions.deleteTag(n.id)}
+                    onClick={() => deleteHandler(n.id)}
                     className={classes.noVerticalPadding}
                   >
                     <DeleteIcon />
