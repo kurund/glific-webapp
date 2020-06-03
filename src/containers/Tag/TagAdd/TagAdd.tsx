@@ -89,7 +89,6 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 			is_active: isActive,
 			is_reserved: isReserved,
 			language_id: Number(languageId),
-			// parent_id: Number(parentId),
 		};
 
 		if (tag) {
