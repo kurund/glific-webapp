@@ -10,7 +10,12 @@ export interface ButtonElementProps {
 
 const ButtonElement: React.SFC<ButtonElementProps> = (props) => {
 	return (
-		<Button type={props.type} variant="contained" color={props.color} onClick={props.onClick}>
+		<Button
+			type={props.type}
+			variant="contained"
+			color={props.color}
+			onClick={props.onClick}
+		>
 			{props.children}
 		</Button>
 	);

@@ -8,7 +8,7 @@ import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
 import { RootState } from "../../../store/reducers";
 
-import Formsy from 'formsy-react';
+import Formsy from "formsy-react";
 import TextFieldElement from "../../../components/UI/TextField/TextFieldElement";
 
 interface TagAddProps {
@@ -30,7 +30,11 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const [formSubmitted, setFormSubmitted] = useState(false);
 	const tagActions = useActions(TagActions);
 
-	const saveHandler = (data: any, resetFunc: Function, invalidateForm: Function) => {
+	const saveHandler = (
+		data: any,
+		resetFunc: Function,
+		invalidateForm: Function
+	) => {
 		let payload = {
 			id: tag ? tagId : Math.random(),
 			name: data["Name"],
@@ -39,7 +43,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 			is_reserved: data["Is Reserved?"],
 			language_id: data["Language"],
 			parent_id: data["Parent"],
-		}
+		};
 
 		if (tag) {
 			tagActions.editTag(payload);
@@ -47,7 +51,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 			tagActions.addTag(payload);
 		}
 		setFormSubmitted(true);
-	}
+	};
 
 	const cancelHandler = () => {
 		setFormSubmitted(true);
@@ -58,43 +62,63 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	}
 
 	// Assign the names for the different form questions.
-	let textEntries: { [text: string]: string; } = { "Name": name, "Description": description };
-	let checkEntries: { [text: string]: boolean; } = { "Is Active?": isActive, "Is Reserved?": isReserved };
-	let numEntries: { [text: string]: number; } = { "Language": +languageId, "Parent": +parentId };
+	let textEntries: { [text: string]: string } = {
+		Name: name,
+		Description: description,
+	};
+	let checkEntries: { [text: string]: boolean } = {
+		"Is Active?": isActive,
+		"Is Reserved?": isReserved,
+	};
+	let numEntries: { [text: string]: number } = {
+		Language: +languageId,
+		Parent: +parentId,
+	};
 
 	let textCards = Object.keys(textEntries).map((entryName, i) => {
 		return (
 			<div className={styles.Input} key={i}>
 				<label className={styles.Label}>{entryName}</label>
-				<TextFieldElement value={textEntries[entryName]} name={entryName} type="text" validations="isWords" validationError="Invalid input." required />
+				<TextFieldElement
+					value={textEntries[entryName]}
+					name={entryName}
+					type="text"
+					validations="isWords"
+					validationError="Invalid input."
+					required
+				/>
 			</div>
 		);
-	})
+	});
 
 	let checkCards = Object.keys(checkEntries).map((entryName, i) => {
 		return (
 			<div className={styles.Input} key={i}>
 				<label className={styles.Label}>{entryName}</label>
-				<CheckboxElement
-					value={checkEntries[entryName]}
-					name={entryName}
-				/>
+				<CheckboxElement value={checkEntries[entryName]} name={entryName} />
 			</div>
-		)
+		);
 	});
 
 	let numCards = Object.keys(numEntries).map((entryName, i) => {
 		return (
 			<div className={styles.Input} key={i}>
 				<label className={styles.Label}>{entryName}</label>
-				<TextFieldElement value={numEntries[entryName]} name={entryName} type="number" validations="isNumeric,isExisty" validationError="Invalid input." required />
+				<TextFieldElement
+					value={numEntries[entryName]}
+					name={entryName}
+					type="number"
+					validations="isNumeric,isExisty"
+					validationError="Invalid input."
+					required
+				/>
 			</div>
-		)
+		);
 	});
 
 	return (
 		<div className={styles.TagAdd}>
-			<h4>{tag ? 'Edit tag information' : 'Enter tag information'}</h4>
+			<h4>{tag ? "Edit tag information" : "Enter tag information"}</h4>
 			<Formsy onValidSubmit={saveHandler}>
 				{textCards}
 				{checkCards}
