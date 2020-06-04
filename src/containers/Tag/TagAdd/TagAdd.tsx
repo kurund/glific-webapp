@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
+import CheckboxElement from "../../../components/UI/Checkbox/CheckboxElement";
 import { useActions } from "../../../store/actions";
 import * as TagActions from "../../../store/actions/tag";
 import { RootState } from "../../../store/reducers";
 import { Tag } from "../../../model";
+
+import Formsy from "formsy-react";
+import TextFieldElement from "../../../components/UI/TextField/TextFieldElement";
 
 interface TagAddProps {
 	match: any;
@@ -18,33 +21,38 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const tagId = props.match ? props.match.params.id : null;
 	const tag = tagId ? tagList.find((tag) => tag.id === Number(tagId)) : null;
 
-	const [name, setName] = useState(tag ? tag.name : "");
-	const [description, setDescription] = useState(tag ? tag.description : "");
-	const [isActive, setIsActive] = useState(tag ? tag.is_active : false);
-	const [isReserved, setIsReserved] = useState(tag ? tag.is_reserved : false);
-	const [languageId, setLanguageId] = useState(tag ? tag.language_id : "");
-	const [parentId, setParentId] = useState(tag ? tag.parent_id : "");
+	// None of these set methods are needed (for now).
+	// const [name, setName] = useState(tag ? tag.name : "");
+	// const [description, setDescription] = useState(tag ? tag.description : "");
+	// const [isActive, setIsActive] = useState(tag ? tag.is_active : false);
+	// const [isReserved, setIsReserved] = useState(tag ? tag.is_reserved : false);
+	// const [languageId, setLanguageId] = useState(tag ? tag.language_id : "");
+	// const [parentId, setParentId] = useState(tag ? tag.parent_id : "");
 	const [formSubmitted, setFormSubmitted] = useState(false);
-
 	const tagActions = useActions(TagActions);
 
-	const saveHandler = () => {
-		const payload: Tag = {
+	const saveHandler = (
+		data: any,
+		resetFunc: Function,
+		invalidateForm: Function
+	) => {
+		let payload = {
 			id: tag ? tagId : Math.floor(Math.random() * Math.floor(100)),
-			name: name,
-			description: description,
-			is_active: isActive,
-			is_reserved: isReserved,
-			language_id: Number(languageId),
-			parent_id: Number(parentId),
+			name: data["Name"],
+			description: data["Description"],
+			is_active: data["Is Active?"],
+			is_reserved: data["Is Reserved?"],
+			language_id: data["Language"],
+			parent_id: data["Parent"],
 		};
+
+		console.log(payload);
 
 		if (tag) {
 			tagActions.editTag(payload);
 		} else {
 			tagActions.addTag(payload);
 		}
-
 		setFormSubmitted(true);
 	};
 
@@ -56,76 +64,82 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		return <Redirect to="/tag" />;
 	}
 
-	let form = (
-		<React.Fragment>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Name</label>
-				<input
+	console.log(tag);
+
+	// Assign the names for the different form questions.
+	let textEntries: { [text: string]: string } = {
+		Name: tag ? tag.name : "",
+		Description: tag ? tag.description : "",
+	};
+	let checkEntries: { [text: string]: boolean } = {
+		"Is Active?": tag ? tag.is_active : false,
+		"Is Reserved?": tag ? tag.is_reserved : false,
+	};
+	let numEntries: { [text: string]: number | string } = {
+		Language: tag ? +tag.language_id : "",
+		Parent: tag ? +tag.parent_id : "",
+	};
+
+	console.log(checkEntries);
+
+	let textCards = Object.keys(textEntries).map((entryName, i) => {
+		return (
+			<div className={styles.Input} key={i}>
+				<label className={styles.Label}>{entryName}</label>
+				<TextFieldElement
+					value={textEntries[entryName]}
+					name={entryName}
 					type="text"
-					name="name"
-					value={name}
-					onChange={(event) => setName(event?.target.value)}
+					validations="isWords"
+					validationError="Invalid input."
+					required
 				/>
 			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Description</label>
-				<input
-					type="text"
-					name="description"
-					value={description}
-					onChange={(event) => setDescription(event?.target.value)}
-				/>
+		);
+	});
+
+	let checkCards = Object.keys(checkEntries).map((entryName, i) => {
+		return (
+			<div className={styles.Input} key={i}>
+				<label className={styles.Label}>{entryName}</label>
+				<CheckboxElement value={checkEntries[entryName]} name={entryName} />
 			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Is Active?</label>
-				<input
-					type="checkbox"
-					name="is_active"
-					checked={isActive}
-					onChange={(event) => setIsActive(event?.target.checked)}
-				/>
-			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Is Reserved?</label>
-				<input
-					type="checkbox"
-					name="is_reserved"
-					checked={isReserved}
-					onChange={(event) => setIsReserved(event?.target.checked)}
-				/>
-			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Language</label>
-				<input
+		);
+	});
+
+	let numCards = Object.keys(numEntries).map((entryName, i) => {
+		return (
+			<div className={styles.Input} key={i}>
+				<label className={styles.Label}>{entryName}</label>
+				<TextFieldElement
+					value={numEntries[entryName]}
+					name={entryName}
 					type="number"
-					name="language_id"
-					value={languageId}
-					onChange={(event) => setLanguageId(event?.target.value)}
+					validations="isNumeric,isExisty"
+					validationError="Invalid input."
+					required
 				/>
 			</div>
-			<div className={styles.Input}>
-				<label className={styles.Label}>Parent</label>
-				<input
-					type="number"
-					name="parent_id"
-					value={parentId}
-					onChange={(event) => setParentId(event?.target.value)}
-				/>
-			</div>
-			<ButtonElement color="primary" onClick={saveHandler}>
-				Save
-			</ButtonElement>
-			&nbsp;
-			<ButtonElement color="secondary" onClick={cancelHandler}>
-				Cancel
-			</ButtonElement>
-		</React.Fragment>
-	);
+		);
+	});
 
 	return (
 		<div className={styles.TagAdd}>
 			<h4>{tag ? "Edit tag information" : "Enter tag information"}</h4>
-			{form}
+			<Formsy onValidSubmit={saveHandler}>
+				{textCards}
+				{checkCards}
+				{numCards}
+				<div className={styles.Buttons}>
+					<ButtonElement type="submit" color="primary">
+						Submit
+					</ButtonElement>
+					&nbsp;
+					<ButtonElement color="default" onClick={cancelHandler}>
+						Cancel
+					</ButtonElement>
+				</div>
+			</Formsy>
 		</div>
 	);
 };
