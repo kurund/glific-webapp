@@ -1,61 +1,171 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
-import { useSelector } from "react-redux";
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
 import CheckboxElement from "../../../components/UI/Checkbox/CheckboxElement";
-import { useActions } from "../../../store/actions";
-import * as TagActions from "../../../store/actions/tag";
-import { RootState } from "../../../store/reducers";
-import { Tag } from "../../../model";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+import { gql } from "apollo-boost";
 
 import Formsy from "formsy-react";
 import TextFieldElement from "../../../components/UI/TextField/TextFieldElement";
+import DropdownElement from "../../../components/UI/Dropdown/DropdownElement";
 
 interface TagAddProps {
 	match: any;
 }
 
+const GET_LANGUAGES = gql`
+	{
+		languages {
+			id
+			label
+		}
+	}
+`;
+
+const GET_TAGS = gql`
+	{
+		tags {
+			id
+			description
+			label
+		}
+	}
+`;
+
+const GET_TAG = gql`
+	query getTag($id: ID!) {
+		tag(id: $id) {
+			tag {
+				id
+				label
+				description
+				isActive
+				isReserved
+				language {
+					id
+				}
+			}
+		}
+	}
+`;
+
+const CREATE_TAG = gql`
+	mutation creTag($input: TagInput!) {
+		createTag(input: $input) {
+			tag {
+				id
+				description
+				label
+				isActive
+				isReserved
+				language {
+					id
+				}
+			}
+		}
+	}
+`;
+
+const UPDATE_TAG = gql`
+	mutation updateTag($id: ID!, $input: TagInput!) {
+		updateTag(id: $id, input: $input) {
+			tag {
+				id
+				label
+				isActive
+				isReserved
+				description
+				language {
+					id
+				}
+			}
+			errors {
+				key
+				message
+			}
+		}
+	}
+`;
+
 export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
-	const tagList = useSelector((state: RootState) => state.tagList);
-	const tagId = props.match ? props.match.params.id : null;
-	const tag = tagId ? tagList.find((tag) => tag.id === Number(tagId)) : null;
+	const tagId = props.match.params.id ? props.match.params.id : false;
+	const { loading, error, data } = useQuery(GET_TAG, {
+		variables: { id: tagId },
+		skip: !tagId,
+	});
+	const [updateTag] = useMutation(UPDATE_TAG);
+	const languages = useQuery(GET_LANGUAGES);
 
-	// None of these set methods are needed (for now).
-	// const [name, setName] = useState(tag ? tag.name : "");
-	// const [description, setDescription] = useState(tag ? tag.description : "");
-	// const [isActive, setIsActive] = useState(tag ? tag.is_active : false);
-	// const [isReserved, setIsReserved] = useState(tag ? tag.is_reserved : false);
-	// const [languageId, setLanguageId] = useState(tag ? tag.language_id : "");
-	// const [parentId, setParentId] = useState(tag ? tag.parent_id : "");
+	const [label, setLabel] = useState("");
+	const [description, setDescription] = useState("");
+	const [isActive, setIsActive] = useState(false);
+	const [isReserved, setIsReserved] = useState(false);
+	const [languageId, setLanguageId] = useState(1);
+	const [parentId, setParentId] = useState("");
 	const [formSubmitted, setFormSubmitted] = useState(false);
-	const tagActions = useActions(TagActions);
 
-	const saveHandler = (
-		data: any,
-		resetFunc: Function,
-		invalidateForm: Function
-	) => {
-		let payload = {
-			id: tag ? tagId : Math.floor(Math.random() * Math.floor(100)),
-			name: data["Name"],
-			description: data["Description"],
-			is_active: data["Is Active?"],
-			is_reserved: data["Is Reserved?"],
-			language_id: data["Language"],
-			parent_id: data["Parent"],
+	const [createTag] = useMutation(CREATE_TAG, {
+		update(cache, { data: { createTag } }) {
+			const tags: any = cache.readQuery({ query: GET_TAGS });
+
+			cache.writeQuery({
+				query: GET_TAGS,
+				data: { tags: tags.tags.concat(createTag.tag) },
+			});
+		},
+	});
+
+	let tag: any = null;
+
+	useEffect(() => {
+		if (tagId && data) {
+			tag = tagId ? data.tag.tag : null;
+			setLabel(tag.label);
+			setDescription(tag.description);
+			setIsActive(tag.isActive);
+			setIsReserved(tag.isReserved);
+			setLanguageId(tag.language.id);
+			setParentId(tag.parent_id);
+		}
+	}, [data]);
+
+	if (loading) return <p>Loading...</p>;
+	if (error) return <p>Error :(</p>;
+
+	const saveHandler = () => {
+		const payload = {
+			label: label,
+			description: description,
+			isActive: isActive,
+			isReserved: isReserved,
+			languageId: Number(languageId),
 		};
 
-		console.log(payload);
-
-		if (tag) {
-			tagActions.editTag(payload);
+		if (tagId) {
+			updateTag({
+				variables: {
+					id: tagId,
+					input: payload,
+				},
+			});
 		} else {
-			tagActions.addTag(payload);
+			createTag({
+				variables: {
+					input: payload,
+				},
+			});
 		}
 		setFormSubmitted(true);
 	};
 
+	const setValues = (value: any) => {
+		setLabel(value.Label);
+		setDescription(value.Description);
+		setIsActive(value["Is Active"]);
+		setIsReserved(value["Is Reserved"]);
+		setLanguageId(value.language);
+	};
 	const cancelHandler = () => {
 		setFormSubmitted(true);
 	};
@@ -64,23 +174,16 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		return <Redirect to="/tag" />;
 	}
 
-	console.log(tag);
-
 	// Assign the names for the different form questions.
+
 	let textEntries: { [text: string]: string } = {
-		Name: tag ? tag.name : "",
-		Description: tag ? tag.description : "",
+		Label: label,
+		Description: description,
 	};
 	let checkEntries: { [text: string]: boolean } = {
-		"Is Active?": tag ? tag.is_active : false,
-		"Is Reserved?": tag ? tag.is_reserved : false,
+		"Is Active": isActive,
+		"Is Reserved": isReserved,
 	};
-	let numEntries: { [text: string]: number | string } = {
-		Language: tag ? +tag.language_id : "",
-		Parent: tag ? +tag.parent_id : "",
-	};
-
-	console.log(checkEntries);
 
 	let textCards = Object.keys(textEntries).map((entryName, i) => {
 		return (
@@ -107,29 +210,29 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		);
 	});
 
-	let numCards = Object.keys(numEntries).map((entryName, i) => {
-		return (
-			<div className={styles.Input} key={i}>
-				<label className={styles.Label}>{entryName}</label>
-				<TextFieldElement
-					value={numEntries[entryName]}
-					name={entryName}
-					type="number"
-					validations="isNumeric,isExisty"
-					validationError="Invalid input."
-					required
-				/>
-			</div>
-		);
-	});
+	const languageOptions = languages.data ? languages.data.languages : null;
+
+	let languageDropdown = (
+		<div className={styles.Input}>
+			<label className={styles.Label}>Language</label>
+			<DropdownElement
+				value={languageId}
+				name="language"
+				options={languageOptions}
+				required
+			></DropdownElement>
+		</div>
+	);
 
 	return (
 		<div className={styles.TagAdd}>
-			<h4>{tag ? "Edit tag information" : "Enter tag information"}</h4>
-			<Formsy onValidSubmit={saveHandler}>
+			<h4>{tagId ? "Edit tag information" : "Enter tag information"}</h4>
+			<Formsy onValidSubmit={saveHandler} onChange={setValues}>
 				{textCards}
 				{checkCards}
-				{numCards}
+
+				{languageDropdown}
+
 				<div className={styles.Buttons}>
 					<ButtonElement type="submit" color="primary">
 						Submit
