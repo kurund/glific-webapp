@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
-import { useActions } from "../../../store/actions";
-import * as TagActions from "../../../store/actions/tag";
 import { Tag } from "../../../model";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
@@ -111,7 +109,6 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
       });
     },
   });
-  // const tagActions = useActions(TagActions);
 
   useEffect(() => {
     if (tagId && data) {
