@@ -13,7 +13,7 @@ const CheckboxElement: React.SFC<CheckboxElementProps> = (
 	const changeValue = (event: any) => {
 		props.setValue(event.target.checked);
 	};
-	return <Checkbox value={props.value} onChange={changeValue} />;
+	return <Checkbox checked={props.value} onChange={changeValue} />;
 };
 
 export default withFormsy<CheckboxElementProps, string>(CheckboxElement);

@@ -17,12 +17,7 @@ import {
 import HomeIcon from "@material-ui/icons/Home";
 import LabelIcon from "@material-ui/icons/Label";
 import MenuIcon from "@material-ui/icons/Menu";
-import {
-	makeStyles,
-	useTheme,
-	Theme,
-	createStyles,
-} from "@material-ui/core/styles";
+import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 
 import { Route, Router } from "react-router-dom";
 import { history } from "./configureStore";
@@ -79,7 +74,6 @@ const Drawer = () => {
 const App = () => {
 	const classes = useStyles();
 	const [mobileOpen, setMobileOpen] = React.useState(true);
-	const theme = useTheme();
 
 	// const isMobile = useMediaQuery((theme: Theme) =>
 	// 	theme.breakpoints.down("sm")
