@@ -9,19 +9,11 @@ import { gql } from "apollo-boost";
 
 import Formsy from "formsy-react";
 import TextFieldElement from "../../../components/UI/TextField/TextFieldElement";
+import DropdownElement from "../../../components/UI/Dropdown/DropdownElement";
 
 interface TagAddProps {
 	match: any;
 }
-
-const GET_LANGUAGES = gql`
-	{
-		languages {
-			id
-			label
-		}
-	}
-`;
 
 const GET_TAGS = gql`
 	{
@@ -78,7 +70,6 @@ const UPDATE_TAG = gql`
 				description
 				language {
 					id
-					label
 				}
 			}
 			errors {
@@ -104,7 +95,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const [languageId, setLanguageId] = useState(1);
 	const [parentId, setParentId] = useState("");
 	const [formSubmitted, setFormSubmitted] = useState(false);
-	const languages = useQuery(GET_LANGUAGES);
+
 	const [createTag] = useMutation(CREATE_TAG, {
 		update(cache, { data: { createTag } }) {
 			const tags: any = cache.readQuery({ query: GET_TAGS });
@@ -137,8 +128,8 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		const payload = {
 			label: label,
 			description: description,
-			isActive: true,
-			isReserved: true,
+			isActive: isActive,
+			isReserved: isReserved,
 			languageId: Number(languageId),
 		};
 
@@ -160,10 +151,11 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	};
 
 	const setValues = (value: any) => {
-		setLabel(value.label);
-		setDescription(value.description);
-		setIsActive(value.isActive);
-		setIsReserved(value.isReserved);
+		console.log(value);
+		setLabel(value.Label);
+		setDescription(value.Description);
+		setIsActive(value["Is Active"]);
+		setIsReserved(value["Is Reserved"]);
 		setLanguageId(value.language);
 	};
 	const cancelHandler = () => {
@@ -174,29 +166,15 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		return <Redirect to="/tag" />;
 	}
 
-	const languageOptions = languages.data
-		? languages.data.languages.map((language: any) => {
-			return (
-				<option value={language.id} key={language.id}>
-					{language.label}
-				</option>
-			);
-		})
-		: null;
-
 	// Assign the names for the different form questions.
 
 	let textEntries: { [text: string]: string } = {
-		label: label,
-		description: description,
+		Label: label,
+		Description: description,
 	};
 	let checkEntries: { [text: string]: boolean } = {
-		isActive: isActive,
-		isReserved: isReserved,
-	};
-	let numEntries: { [text: string]: number | string } = {
-		language: languageId,
-		Parent: tag ? +tag.parent_id : "",
+		"Is Active": isActive,
+		"Is Reserved": isReserved,
 	};
 
 	let textCards = Object.keys(textEntries).map((entryName, i) => {
@@ -224,21 +202,16 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		);
 	});
 
-	let numCards = Object.keys(numEntries).map((entryName, i) => {
-		return (
-			<div className={styles.Input} key={i}>
-				<label className={styles.Label}>{entryName}</label>
-				<TextFieldElement
-					value={numEntries[entryName]}
-					name={entryName}
-					type="number"
-					validations="isNumeric,isExisty"
-					validationError="Invalid input."
-					required
-				/>
-			</div>
-		);
-	});
+	let dropdown = (
+		<div className={styles.Input}>
+			<label className={styles.Label}>Language</label>
+			<DropdownElement
+				value={languageId}
+				name="language"
+				required
+			></DropdownElement>
+		</div>
+	);
 
 	return (
 		<div className={styles.TagAdd}>
@@ -246,7 +219,8 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 			<Formsy onValidSubmit={saveHandler} onChange={setValues}>
 				{textCards}
 				{checkCards}
-				{numCards}
+
+				{dropdown}
 				<div className={styles.Buttons}>
 					<ButtonElement type="submit" color="primary">
 						Submit
