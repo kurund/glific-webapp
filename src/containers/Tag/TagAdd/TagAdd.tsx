@@ -107,11 +107,11 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	const languages = useQuery(GET_LANGUAGES);
 	const [createTag] = useMutation(CREATE_TAG, {
 		update(cache, { data: { createTag } }) {
-			const todos: any = cache.readQuery({ query: GET_TAGS });
+			const tags: any = cache.readQuery({ query: GET_TAGS });
 
 			cache.writeQuery({
 				query: GET_TAGS,
-				data: { tags: todos.tags.concat(createTag.tag) },
+				data: { tags: tags.tags.concat(createTag.tag) },
 			});
 		},
 	});
@@ -176,12 +176,12 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 
 	const languageOptions = languages.data
 		? languages.data.languages.map((language: any) => {
-				return (
-					<option value={language.id} key={language.id}>
-						{language.label}
-					</option>
-				);
-		  })
+			return (
+				<option value={language.id} key={language.id}>
+					{language.label}
+				</option>
+			);
+		})
 		: null;
 
 	// Assign the names for the different form questions.
