@@ -3,7 +3,6 @@ import { Redirect } from "react-router-dom";
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
 import CheckboxElement from "../../../components/UI/Checkbox/CheckboxElement";
-import { Tag } from "../../../model";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 
@@ -14,6 +13,15 @@ import DropdownElement from "../../../components/UI/Dropdown/DropdownElement";
 interface TagAddProps {
 	match: any;
 }
+
+const GET_LANGUAGES = gql`
+	{
+		languages {
+			id
+			label
+		}
+	}
+`;
 
 const GET_TAGS = gql`
 	{
@@ -87,6 +95,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		skip: !tagId,
 	});
 	const [updateTag] = useMutation(UPDATE_TAG);
+	const languages = useQuery(GET_LANGUAGES);
 
 	const [label, setLabel] = useState("");
 	const [description, setDescription] = useState("");
@@ -201,12 +210,15 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 		);
 	});
 
-	let dropdown = (
+	const languageOptions = languages.data ? languages.data.languages : null;
+
+	let languageDropdown = (
 		<div className={styles.Input}>
 			<label className={styles.Label}>Language</label>
 			<DropdownElement
 				value={languageId}
 				name="language"
+				options={languageOptions}
 				required
 			></DropdownElement>
 		</div>
@@ -219,7 +231,8 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 				{textCards}
 				{checkCards}
 
-				{dropdown}
+				{languageDropdown}
+
 				<div className={styles.Buttons}>
 					<ButtonElement type="submit" color="primary">
 						Submit

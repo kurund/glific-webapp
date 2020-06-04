@@ -2,45 +2,35 @@ import { withFormsy } from "formsy-react";
 import React from "react";
 import { PassDownProps } from "formsy-react/dist/Wrapper";
 import { Select, MenuItem } from "@material-ui/core";
-import { useQuery } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
-
-const GET_LANGUAGES = gql`
-	{
-		languages {
-			id
-			label
-		}
-	}
-`;
 
 export interface DropdownElementProps extends PassDownProps<string> {
 	value: any;
+	options: any;
 }
 
-const DropdownElement: React.SFC<DropdownElementProps> = (
-	props: DropdownElementProps
-) => {
-	const languages = useQuery(GET_LANGUAGES);
-	const handleChange = (event: any) => {
-		const value = event.target.value;
-		props.setValue(value);
-	};
+class DropdownElement extends React.Component<DropdownElementProps> {
+	constructor(props: DropdownElementProps) {
+		super(props);
+		this.changeValue = this.changeValue.bind(this);
+	}
 
-	const languageOptions = languages.data
-		? languages.data.languages.map((language: any) => {
-				return (
-					<MenuItem value={language.id} key={language.id}>
-						{language.label}
-					</MenuItem>
-				);
-		  })
-		: null;
-	return (
-		<Select value={props.value} onChange={handleChange}>
-			{languageOptions}
-		</Select>
-	);
-};
+	changeValue(event: any) {
+		this.props.setValue(event.target.value);
+	}
+
+	render() {
+		const options = this.props.options && this.props.options.map((option: any) => {
+			return <MenuItem value={option.id} key={option.id}>
+				{option.label}
+			</MenuItem>
+		});
+
+		return (
+			<Select value={this.props.value || ""} onChange={this.changeValue} >
+				{options}
+			</Select >
+		);
+	}
+}
 
 export default withFormsy<DropdownElementProps, string>(DropdownElement);
