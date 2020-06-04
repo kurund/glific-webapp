@@ -87,9 +87,10 @@ const UPDATE_TAG = gql`
 `;
 
 export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
-  const tagId = props.match ? props.match.params.id : null;
+  const tagId = props.match.params.id ? props.match.params.id : false;
   const { loading, error, data } = useQuery(GET_TAG, {
     variables: { id: tagId },
+    skip: !tagId,
   });
   const [updateTag] = useMutation(UPDATE_TAG);
 
@@ -125,8 +126,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
   }, [data]);
 
   if (loading) return <p>Loading...</p>;
-  // if (error) return <p>Error :(</p>;
-  if (error) console.log(error);
+  if (error) return <p>Error :(</p>;
 
   const saveHandler = () => {
     const payload = {
