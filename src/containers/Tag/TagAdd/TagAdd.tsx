@@ -125,7 +125,8 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
   }, [data]);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :(</p>;
+  // if (error) return <p>Error :(</p>;
+  if (error) console.log(error);
 
   const saveHandler = () => {
     const payload = {
