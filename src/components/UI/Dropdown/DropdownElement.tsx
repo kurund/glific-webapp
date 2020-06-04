@@ -24,7 +24,6 @@ const DropdownElement: React.SFC<DropdownElementProps> = (
 	const languages = useQuery(GET_LANGUAGES);
 	const handleChange = (event: any) => {
 		const value = event.target.value;
-		console.log(value);
 		props.setValue(value);
 	};
 

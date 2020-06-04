@@ -151,7 +151,6 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
 	};
 
 	const setValues = (value: any) => {
-		console.log(value);
 		setLabel(value.Label);
 		setDescription(value.Description);
 		setIsActive(value["Is Active"]);
