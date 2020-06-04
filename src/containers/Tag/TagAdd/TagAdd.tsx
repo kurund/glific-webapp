@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import styles from "./TagAdd.module.css";
 import ButtonElement from "../../../components/UI/Button/ButtonElement";
+import CheckboxElement from "../../../components/UI/Checkbox/CheckboxElement";
 import { Tag } from "../../../model";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
+
+import Formsy from "formsy-react";
+import TextFieldElement from "../../../components/UI/TextField/TextFieldElement";
 
 interface TagAddProps {
   match: any;
@@ -28,6 +32,7 @@ const GET_TAGS = gql`
 		}
 	}
 `;
+
 const GET_TAG = gql`
 	query getTag($id: ID!) {
 		tag(id: $id) {
@@ -110,9 +115,11 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
     },
   });
 
+  let tag: any = null;
+
   useEffect(() => {
     if (tagId && data) {
-      const tag: any = tagId ? data.tag.tag : null;
+      tag = tagId ? data.tag.tag : null;
       setLabel(tag.label);
       setDescription(tag.description);
       setIsActive(tag.isActive);
@@ -148,9 +155,8 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
         },
       });
     }
-
     setFormSubmitted(true);
-  };
+  }
 
   const cancelHandler = () => {
     setFormSubmitted(true);
@@ -160,7 +166,7 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
     return <Redirect to="/tag" />;
   }
 
-  const options = languages.data
+  const languageOptions = languages.data
     ? languages.data.languages.map((language: any) => {
       return (
         <option value={language.id} key={language.id}>
@@ -170,67 +176,79 @@ export const TagAdd: React.SFC<TagAddProps> = (props: TagAddProps) => {
     })
     : null;
 
-  let form = (
-    <React.Fragment>
-      <div className={styles.Input}>
-        <label className={styles.Label}>Label</label>
-        <input
+
+  // Assign the names for the different form questions.
+  let textEntries: { [text: string]: string } = {
+    Label: tag ? tag.label : "",
+    Description: tag ? tag.description : "",
+  };
+  let checkEntries: { [text: string]: boolean } = {
+    "Is Active?": tag ? tag.is_active : false,
+    "Is Reserved?": tag ? tag.is_reserved : false,
+  };
+  let numEntries: { [text: string]: number | string } = {
+    Language: tag ? +tag.language_id : "",
+    Parent: tag ? +tag.parent_id : "",
+  };
+
+  let textCards = Object.keys(textEntries).map((entryName, i) => {
+    return (
+      <div className={styles.Input} key={i}>
+        <label className={styles.Label}>{entryName}</label>
+        <TextFieldElement
+          value={textEntries[entryName]}
+          name={entryName}
           type="text"
-          name="label"
-          value={label}
-          onChange={(event) => setLabel(event?.target.value)}
+          validations="isWords"
+          validationError="Invalid input."
+          required
         />
       </div>
-      <div className={styles.Input}>
-        <label className={styles.Label}>Description</label>
-        <input
-          type="text"
-          name="description"
-          value={description}
-          onChange={(event) => setDescription(event?.target.value)}
+    );
+  });
+
+  let checkCards = Object.keys(checkEntries).map((entryName, i) => {
+    return (
+      <div className={styles.Input} key={i}>
+        <label className={styles.Label}>{entryName}</label>
+        <CheckboxElement value={checkEntries[entryName]} name={entryName} />
+      </div>
+    );
+  });
+
+  let numCards = Object.keys(numEntries).map((entryName, i) => {
+    return (
+      <div className={styles.Input} key={i}>
+        <label className={styles.Label}>{entryName}</label>
+        <TextFieldElement
+          value={numEntries[entryName]}
+          name={entryName}
+          type="number"
+          validations="isNumeric,isExisty"
+          validationError="Invalid input."
+          required
         />
       </div>
-      <div className={styles.Input}>
-        <label className={styles.Label}>Is Active?</label>
-        <input
-          type="checkbox"
-          name="is_active"
-          checked={isActive}
-          onChange={(event) => setIsActive(event?.target.checked)}
-        />
-      </div>
-      <div className={styles.Input}>
-        <label className={styles.Label}>Is Reserved?</label>
-        <input
-          type="checkbox"
-          name="is_reserved"
-          checked={isReserved}
-          onChange={(event) => setIsReserved(event?.target.checked)}
-        />
-      </div>
-      <div className={styles.Input}>
-        <label className={styles.Label}>Language</label>
-        <select
-          value={languageId}
-          onChange={(event) => setLanguageId(event?.target.value)}
-        >
-          {options}
-        </select>
-      </div>
-      <ButtonElement color="primary" onClick={saveHandler}>
-        Save
-			</ButtonElement>
-			&nbsp;
-      <ButtonElement color="secondary" onClick={cancelHandler}>
-        Cancel
-			</ButtonElement>
-    </React.Fragment>
-  );
+    );
+  });
 
   return (
     <div className={styles.TagAdd}>
       <h4>{tagId ? "Edit tag information" : "Enter tag information"}</h4>
-      {form}
+      <Formsy onValidSubmit={saveHandler}>
+        {textCards}
+        {checkCards}
+        {numCards}
+        <div className={styles.Buttons}>
+          <ButtonElement type="submit" color="primary">
+            Submit
+					</ButtonElement>
+					&nbsp;
+					<ButtonElement color="default" onClick={cancelHandler}>
+            Cancel
+					</ButtonElement>
+        </div>
+      </Formsy>
     </div>
   );
 };

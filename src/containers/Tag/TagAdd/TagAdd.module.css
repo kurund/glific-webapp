@@ -16,6 +16,7 @@
 
 .Input {
 	width: 100%;
+	height: 80px;
 	padding: 10px;
 	box-sizing: border-box;
 }
@@ -24,4 +25,8 @@
 	font-weight: bold;
 	display: flex;
 	margin-bottom: -17px;
+}
+
+.Buttons {
+	margin-top: 10px;
 }
